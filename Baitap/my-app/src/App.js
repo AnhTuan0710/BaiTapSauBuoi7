@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import React, {useState, useEffect} from 'react';
+import orderBy from 'lodash';
 
 function App() {
   const [listJava, setListJava] = useState([
@@ -66,6 +67,7 @@ const getValueAge = (e) => {
 const getValueClass = (e) => {
   setLopMoi(e.target.value);
 };
+
 const AddMember = function (e) {
   if (lopMoi === 'react') {
     const react = {
@@ -87,18 +89,51 @@ const AddMember = function (e) {
   setTuoiMoi(0);
   setLopMoi('react');
 };
+const [searchName, setSearchName]= useState('');
+const [searchName2, setSearchName2]= useState('');
+const [sortAge, setSortAge]= useState('');
+let [listReactNew, setListReactNew]= useState(listReact);
+const timKiemTheoTen= function(list, searchName2){
+  setListReactNew(list);
+  if(searchName2 === ''){
+    listReactNew = list;
+  }else{
+    const lowercaseFilter = searchName2.toLowerCase();
+    listReactNew= list.filter((item) =>{
+      return item.name.toLowerCase().includes(lowercaseFilter);
+    });
+    setListReactNew(listReactNew);
+  }
+
+};
+let [listJavaNew, setListJavaNew]= useState(listJava);
+const timKiemTheoTen2= function(list, searchName2){
+  setListJavaNew(list);
+  if(searchName2 === ''){
+    listJavaNew = list;
+  }else{
+    const lowercaseFilter = searchName2.toLowerCase();
+    listJavaNew= list.filter((item) =>{
+      return item.name.toLowerCase().includes(lowercaseFilter);
+    });
+    setListJavaNew(listJavaNew);
+  }
+}
+// const sapXepTheoTuoi= function(list)
+// {
+//   listReactNew= list.orderBy();
+//   setListReactNew(listReactNew);
+// }
+
+
 const FillData = function (ten, tuoi, lop) {
   document.getElementById('Add_Update').innerHTML = 'Cập nhật User';
-  // document.getElementsByClassName('btn_update').style.display='inline-block';
-  // document.getElementsByClassName('btn_edit').style.display='none';
   setTenMoi(ten);
   setTuoiMoi(tuoi);
   setLopMoi(lop);
 };
 const UpdateData = function (index, lop) {
   document.getElementById('Add_Update').innerHTML = 'Thêm User';
-  // document.getElementsByClassName('btn_edit').style.display='inline-block';
-  // document.getElementsByClassName('btn_update').style.display='none';
   console.log(index);
 
   if (lop === 'react') {
@@ -151,28 +186,82 @@ const UpdateData = function (index, lop) {
   setTuoiMoi(0);
   setLopMoi('react');
 };
+useEffect(() => {
+  if (listJava.length === 0) {
+    alert('Lớp Java không còn sinh viên');
+  }
+  if (listReact.length === 0) {
+    alert('Lớp React không còn sinh viên');
+  }
+  setListJavaNew(listJava);
+  setListReactNew(listReact);
+  //  saveData();
+}, [listJava, listReact]);
   return (
     <div className="root">
       <h2>List member of React class</h2>
-      {listReact.length>0 ? <ul>
-        {listReact.map((item,index ) => {
+      <div className="Tim">
+        Tìm kiếm: {' '}
+        <input 
+        type="text"
+        value={searchName}
+        id='timKiemTheoTen'
+        placeholder='Tìm kiếm theo tên'
+        onChange={(e) => setSearchName(e.target.value)}
+        />
+        <input
+        type='button'
+        value='Tìm'
+        onClick={() =>{
+          timKiemTheoTen(listReact,searchName);
+        }}
+        />
+        <br/>
+        <input
+        type = 'button'
+        value='Sắp xếp theo age'
+        // onChange={()=>{
+        //   sapXepTheoTuoi(listReact);
+        // }}
+        />
+        </div>
+        
+      {listReactNew.length>0 ? <ul>
+        {listReactNew.map((item,index ) => {
           return <li key={index}>
             name: {item.name}, age: {item.age};
             <button onClick={() => {tranferItem(item.name, item.age, item.type)}}>Tranfer</button>
-            <button className='btn_edit' onClick={() => {
+            <button  onClick={() => {
 										FillData(item.name, item.age, item.type);
 									}}>Edit</button>
-            <button className='btn_update'onClick={() => {
+            <button onClick={() => {
 										UpdateData(index, item.type);
-									}}>Update</button>
+									}}>Update</button>   
+                  
           </li>
-        })}
-      </ul>
- : "Khong co thanh vien nao"}
+        })} 
+ </ul>: "Khong co thanh vien nao"}
       
       <h2>List member of Java class</h2>
-      {listJava.length>0 ? <ul>
-        {listJava.map((item,index) =>{
+      <div className="Tim">
+        Tìm kiếm: {' '}
+        <input 
+        type="text"
+        value={searchName2}
+        id='timKiemTheoTen2'
+        placeholder='Tìm kiếm theo tên'
+        onChange={(e) => setSearchName2(e.target.value)}
+        />
+        <input
+        type='button' 
+        value='Tìm'
+        onClick={() =>{
+          timKiemTheoTen2(listJava,searchName2);
+        }}
+        />
+        </div>
+      {listJavaNew.length>0 ? <ul>
+        {listJavaNew.map((item,index) =>{
           return <li>
             name: {item.name}, age: {item.age};
             <button onClick={() => {tranferItem(item.name, item.age, item.type)}}>Tranfer</button>
@@ -199,6 +288,7 @@ const UpdateData = function (index, lop) {
 			<button className='addMember' onClick={AddMember}>
 				Add Member
 			</button>
+      
       </div>   
   );
 }
