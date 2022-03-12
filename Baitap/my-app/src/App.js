@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import orderBy from 'lodash';
 
 function App() {
@@ -91,7 +91,6 @@ const AddMember = function (e) {
 };
 const [searchName, setSearchName]= useState('');
 const [searchName2, setSearchName2]= useState('');
-const [sortAge, setSortAge]= useState('');
 let [listReactNew, setListReactNew]= useState(listReact);
 const timKiemTheoTen= function(list, searchName2){
   setListReactNew(list);
@@ -132,6 +131,44 @@ const FillData = function (ten, tuoi, lop) {
   setTuoiMoi(tuoi);
   setLopMoi(lop);
 };
+const SORT = {
+  up: 2,
+  down: 3,
+  no: 1,
+};
+const [sortAge, setSortAge] = useState(SORT.up);
+	const getSortAge = () => {
+		if (sortAge === SORT.no) {
+			return 'NO';
+		}
+		if (sortAge === SORT.up) {
+			return 'UP';
+		}
+		return 'DOWN';
+	};
+const handleSort = () => {
+  if (sortAge === SORT.down) {
+    setSortAge(SORT.no);
+  } else {
+    if (sortAge === SORT.no) {
+      setSortAge(SORT.up);
+    } else {
+      if (sortAge === SORT.up) {
+        setSortAge(SORT.down);
+      }
+    }
+  }
+};
+const Delete= function(index){
+  for (var i=0; i<listReact.length; i++)
+  {
+    if(listReact[i]==index)
+    {
+      listReact.splice(index, 1);
+    }
+    setListReact([...listReact]);
+  }
+}
 const UpdateData = function (index, lop) {
   document.getElementById('Add_Update').innerHTML = 'Thêm User';
   console.log(index);
@@ -211,19 +248,18 @@ useEffect(() => {
         />
         <input
         type='button'
+        id='btn_Tim'
         value='Tìm'
         onClick={() =>{
           timKiemTheoTen(listReact,searchName);
         }}
         />
         <br/>
-        <input
-        type = 'button'
-        value='Sắp xếp theo age'
-        // onChange={()=>{
-        //   sapXepTheoTuoi(listReact);
-        // }}
-        />
+        <div className='sapXep'>
+				<button onClick={handleSort}>
+					Sắp Xếp Theo Tuổi {getSortAge()}
+				</button>
+			</div>
         </div>
         
       {listReactNew.length>0 ? <ul>
@@ -234,10 +270,13 @@ useEffect(() => {
             <button  onClick={() => {
 										FillData(item.name, item.age, item.type);
 									}}>Edit</button>
-            <button onClick={() => {
+                  <button onClick={() => {
 										UpdateData(index, item.type);
-									}}>Update</button>   
-                  
+									}}>Update</button>
+            <button onClick={()=>{
+              Delete(index);
+            }}>Delete</button> 
+                         
           </li>
         })} 
  </ul>: "Khong co thanh vien nao"}
@@ -271,6 +310,8 @@ useEffect(() => {
             <button onClick={() => {
 										UpdateData(index, item.type);
 									}}>Update</button>
+                  <button
+									>Delete</button> 
           </li>
         })}
       </ul>: "Khong co thanh vien nao"}
